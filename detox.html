@@ -66,19 +66,189 @@ footer{padding:35px 7%;text-align:center;color:var(--muted);font-size:13px}
 </main>
 <footer>Detox 🌿 · Built for mental wellness · Privacy-first demo</footer>
 
+
 <script>
-function setMood(m){document.getElementById('moodResult').textContent="Today's check-in: "+m+". Thanks for checking in with yourself."}
-function addMsg(text,cls){let d=document.createElement('div');d.className='msg '+cls;d.textContent=text;let box=document.getElementById('messages');box.appendChild(d);box.scrollTop=box.scrollHeight}
-function sendMessage(){
- const input=document.getElementById('chatInput'); const text=input.value.trim(); if(!text)return;
- addMsg(text,'user'); input.value='';
- setTimeout(()=>{let lower=text.toLowerCase(), reply;
- if(lower.includes('overwhelm')||lower.includes('stress')) reply="That sounds like a lot to carry at once. You could pause and choose just one small thing to deal with first. What feels most urgent right now?";
- else if(lower.includes('sad')||lower.includes('lonely')) reply="I'm sorry you're having a difficult moment. You don't have to figure everything out at once. Is there someone you trust whom you could talk to today?";
- else if(lower.includes('exam')||lower.includes('study')) reply="Study pressure can pile up quickly. Try breaking the next task into a small 15–25 minute step, then take a short break.";
- else reply="Thanks for sharing that. Taking a moment to put your thoughts into words can be useful. What part of this is affecting you the most?";
- addMsg(reply,'ai')},500)
+function setMood(m) {
+  document.getElementById('moodResult').textContent =
+    "Today's check-in: " + m + ". Thanks for checking in with yourself.";
 }
+
+function addMsg(text, cls) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + cls;
+  d.textContent = text;
+
+  const box = document.getElementById('messages');
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+
+/* Local response engine */
+function getWellnessReply(text) {
+  const lower = text.toLowerCase().trim();
+
+  const groups = [
+
+    {
+      words: [
+        'stress', 'stressed', 'overwhelmed', 'overwhelm',
+        'pressure', 'anxious', 'anxiety', 'panic', 'nervous'
+      ],
+      replies: [
+        "That sounds like a lot to handle at once. Try focusing only on the next small thing you can control. What feels most difficult right now?",
+        "When everything feels urgent, pause and separate what needs attention now from what can wait. What is one thing you want to handle first?",
+        "You don't have to solve everything at once. Take a slow breath and choose one small next step."
+      ]
+    },
+
+    {
+      words: [
+        'sad', 'sadness', 'lonely', 'loneliness',
+        'cry', 'upset', 'down', 'hurt'
+      ],
+      replies: [
+        "I'm glad you put that feeling into words. You don't have to handle a difficult moment completely on your own. Is there someone you trust you could talk to?",
+        "That sounds difficult. Be gentle with yourself for the moment and focus on one small thing that could make the next few minutes easier.",
+        "Sometimes putting a difficult feeling into words can make it feel less tangled. What is weighing on you most?"
+      ]
+    },
+
+    {
+      words: [
+        'exam', 'exams', 'study', 'studying',
+        'homework', 'school', 'marks', 'grade', 'syllabus'
+      ],
+      replies: [
+        "Study pressure can pile up quickly. Pick one clearly defined task and work on it for a short focused block, then take a brief break.",
+        "Try turning the big study goal into the smallest next action—for example, one concept, one question, or one page.",
+        "A difficult study day doesn't define your ability. Focus on what you can complete next rather than the whole syllabus."
+      ]
+    },
+
+    {
+      words: [
+        'angry', 'anger', 'mad', 'frustrated',
+        'frustration', 'annoyed', 'irritated'
+      ],
+      replies: [
+        "It sounds like something has really gotten under your skin. Before reacting, give yourself some space and identify what specifically triggered the feeling.",
+        "Strong frustration can make everything feel bigger. A short pause or change of setting may help you think more clearly.",
+        "Take a moment before responding to the situation. What exactly happened that made you feel this way?"
+      ]
+    },
+
+    {
+      words: [
+        'sleep', 'sleeping', 'insomnia',
+        'tired', 'exhausted', 'fatigue'
+      ],
+      replies: [
+        "Being tired can make ordinary problems feel harder. If you can, give yourself some quiet time and a chance to rest.",
+        "A calmer evening routine can sometimes help: reduce stimulation, put the phone aside for a while, and let your mind slow down.",
+        "Rest matters too. If you're exhausted, consider making your next goal simply getting some recovery time."
+      ]
+    },
+
+    {
+      words: [
+        'friend', 'friends', 'family', 'parents',
+        'relationship', 'argument', 'fight', 'conflict'
+      ],
+      replies: [
+        "Relationships can affect our mood a lot. Try separating what actually happened from what you are assuming it means. What happened from your point of view?",
+        "It may help to pause before sending a message or making a decision while emotions are high. What part of the situation bothers you most?",
+        "Sometimes the best first step is understanding exactly what went wrong. What happened?"
+      ]
+    },
+
+    {
+      words: [
+        'happy', 'good', 'great', 'excited',
+        'proud', 'better', 'amazing', 'awesome'
+      ],
+      replies: [
+        "That's good to hear. Take a moment to notice what made today feel better—you may be able to repeat some of it.",
+        "Nice. Small positive moments are worth noticing too. What has been going well?",
+        "That's great. What do you think contributed to feeling this way?"
+      ]
+    },
+
+    {
+      words: [
+        'future', 'career', 'goal', 'goals',
+        'purpose', 'motivation', 'motivated'
+      ],
+      replies: [
+        "Having a meaningful goal can give difficult days some direction. Try focusing on the next step rather than the entire journey.",
+        "Big goals become easier to handle when you turn them into smaller actions. What's one thing you can do today?",
+        "Motivation isn't always constant. Building a routine can help you keep moving even on low-motivation days."
+      ]
+    },
+
+    {
+      words: [
+        'bored', 'boring', 'nothing', 'free time'
+      ],
+      replies: [
+        "A little boredom can actually be useful. You could take a walk, write something down, read, or spend a few minutes away from your screen.",
+        "Maybe use the next few minutes for something small that feels meaningful. What kind of activity usually makes you feel refreshed?"
+      ]
+    }
+
+  ];
+
+  /* Find the first matching emotional/topic category */
+  for (const group of groups) {
+    for (const word of group.words) {
+      if (lower.includes(word)) {
+        return group.replies[
+          Math.floor(Math.random() * group.replies.length)
+        ];
+      }
+    }
+  }
+
+  /* General response */
+  const generalReplies = [
+    "Thanks for sharing that. Putting thoughts into words can be useful. What part of the situation is affecting you the most?",
+    "I hear you. Let's break it down into something easier to understand. What is bothering you most right now?",
+    "That sounds worth exploring. What happened just before you started feeling this way?",
+    "Take your time. You can describe what's on your mind in your own words.",
+    "Let's take this one step at a time. What would you like to understand or change about the situation?"
+  ];
+
+  return generalReplies[
+    Math.floor(Math.random() * generalReplies.length)
+  ];
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  /* User message */
+  addMsg(text, 'user');
+
+  /* Clear input */
+  input.value = '';
+
+  /* AI-style response */
+  setTimeout(() => {
+    const reply = getWellnessReply(text);
+    addMsg(reply, 'ai');
+  }, 450);
+}
+
+/* Press Enter to send */
+document.getElementById('chatInput').addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    sendMessage();
+  }
+});
+
 </script>
 </body>
 </html>
