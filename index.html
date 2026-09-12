@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detox — Mental Wellness</title>
+<style>
+:root{--bg:#f5f8f7;--card:#fff;--text:#19312d;--muted:#667773;--accent:#4d8b7d;--accent2:#dceee9;--border:#e2ebe8;--shadow:0 12px 35px rgba(30,65,58,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+nav{height:72px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 7%;position:sticky;top:0;z-index:10}
+.logo{font-weight:800;font-size:22px;color:var(--accent)}nav a{margin-left:24px;color:var(--muted);text-decoration:none;font-size:14px}
+.hero{padding:75px 7% 55px;display:grid;grid-template-columns:1.15fr .85fr;gap:55px;align-items:center;max-width:1250px;margin:auto}
+h1{font-size:clamp(42px,6vw,70px);line-height:1.02;margin:0 0 22px;letter-spacing:-2px}
+.hero p{font-size:18px;color:var(--muted);line-height:1.7;max-width:610px}
+.btn{border:0;border-radius:13px;padding:13px 19px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}.btn.secondary{background:var(--accent2);color:var(--text)}
+.hero-card{background:linear-gradient(145deg,#dff0eb,#f9fcfb);border:1px solid #d4e7e2;border-radius:30px;padding:32px;box-shadow:var(--shadow)}
+.face{font-size:65px;text-align:center;margin-bottom:20px}.quote{font-size:22px;font-weight:700;line-height:1.35;text-align:center}.small{font-size:13px;color:var(--muted);text-align:center}
+section{padding:45px 7%;max-width:1250px;margin:auto}h2{font-size:32px;margin:0 0 10px}.subtitle{color:var(--muted);margin-bottom:25px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:25px;box-shadow:var(--shadow)}.icon{font-size:30px}.card h3{margin:13px 0 8px}.card p{color:var(--muted);line-height:1.6}
+.mood{display:flex;gap:10px;flex-wrap:wrap}.mood button{font-size:26px;border:1px solid var(--border);background:#fff;border-radius:15px;padding:12px 15px;cursor:pointer}.mood button:hover{background:var(--accent2)}
+.chat{max-width:800px;margin:auto;background:#fff;border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}.messages{height:320px;overflow:auto;padding:20px}.msg{padding:12px 15px;border-radius:16px;margin:8px 0;max-width:78%;line-height:1.5}.ai{background:var(--accent2)}.user{background:#eef1f0;margin-left:auto}.inputrow{display:flex;border-top:1px solid var(--border);padding:12px;gap:10px}.inputrow input{flex:1;border:1px solid var(--border);border-radius:12px;padding:12px;font-size:15px}
+.notice{background:#fff5e8;border:1px solid #f2dfbd;padding:16px;border-radius:15px;color:#6e552d;line-height:1.5}
+footer{padding:35px 7%;text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:45px}.grid{grid-template-columns:1fr}nav{padding:0 5%}nav a{margin-left:10px}.hero-card{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="logo">Detox 🌿</div><div><a href="#checkin">Check-in</a><a href="#companion">Companion</a><a href="#resources">Resources</a></div></nav>
+
+<main>
+<section class="hero">
+<div>
+<div style="color:var(--accent);font-weight:800;margin-bottom:12px">YOUR SPACE TO PAUSE</div>
+<h1>A calmer place for your mind.</h1>
+<p>Detox is a gentle mental-wellness space for reflection, journaling, mood check-ins and supportive conversations.</p>
+<button class="btn" onclick="document.querySelector('#checkin').scrollIntoView({behavior:'smooth'})">Start a check-in</button>
+<button class="btn secondary" onclick="document.querySelector('#companion').scrollIntoView({behavior:'smooth'})">Talk to the companion</button>
+</div>
+<div class="hero-card"><div class="face">🌿</div><div class="quote">“You don't have to solve everything today.”</div><p class="small">Take a breath. Notice where you are. Start from there.</p></div>
+</section>
+
+<section id="checkin">
+<h2>How are you feeling?</h2><div class="subtitle">There is no right answer. Choose what feels closest.</div>
+<div class="card"><div class="mood">
+<button onclick="setMood('😊 Feeling good')">😊</button><button onclick="setMood('🙂 Okay')">🙂</button><button onclick="setMood('😐 Neutral')">😐</button><button onclick="setMood('😟 Low')">😟</button><button onclick="setMood('😣 Struggling')">😣</button>
+</div><p id="moodResult" style="color:var(--accent);font-weight:700;margin-bottom:0">Your check-in will appear here.</p></div>
+</section>
+
+<section id="companion">
+<h2>Wellness companion</h2><div class="subtitle">A simple reflective chat. This demo works without an API key.</div>
+<div class="chat"><div class="messages" id="messages"><div class="msg ai">Hi. I'm here to listen. What's on your mind right now?</div></div>
+<div class="inputrow"><input id="chatInput" placeholder="Write what's on your mind..." onkeydown="if(event.key==='Enter')sendMessage()"><button class="btn" onclick="sendMessage()">Send</button></div></div>
+<p class="small" style="margin-top:12px">This is a wellness demo, not a therapist, diagnosis service, or emergency service.</p>
+</section>
+
+<section>
+<h2>Small things that can help</h2><div class="grid">
+<div class="card"><div class="icon">🌬️</div><h3>One-minute breathing</h3><p>Slowly breathe in for 4 seconds, then out for 6. Repeat several times without forcing it.</p></div>
+<div class="card"><div class="icon">📔</div><h3>Journal prompt</h3><p>“What is one thing I can control today, and one thing I can let go of for now?”</p></div>
+<div class="card"><div class="icon">🚶</div><h3>Change your setting</h3><p>Stretch, walk around, drink some water, or step somewhere quieter for a few minutes.</p></div>
+</div></section>
+
+<section id="resources">
+<h2>When you need more support</h2><div class="notice"><strong>Important:</strong> Detox is not a substitute for professional mental-health care. If something feels serious, persistent, or unsafe, talk to a trusted person and a qualified mental-health professional. If there is immediate danger, contact local emergency services.</div>
+</section>
+</main>
+<footer>Detox 🌿 · Built for mental wellness · Privacy-first demo</footer>
+
+<script>
+function setMood(m){document.getElementById('moodResult').textContent="Today's check-in: "+m+". Thanks for checking in with yourself."}
+function addMsg(text,cls){let d=document.createElement('div');d.className='msg '+cls;d.textContent=text;let box=document.getElementById('messages');box.appendChild(d);box.scrollTop=box.scrollHeight}
+function sendMessage(){
+ const input=document.getElementById('chatInput'); const text=input.value.trim(); if(!text)return;
+ addMsg(text,'user'); input.value='';
+ setTimeout(()=>{let lower=text.toLowerCase(), reply;
+ if(lower.includes('overwhelm')||lower.includes('stress')) reply="That sounds like a lot to carry at once. You could pause and choose just one small thing to deal with first. What feels most urgent right now?";
+ else if(lower.includes('sad')||lower.includes('lonely')) reply="I'm sorry you're having a difficult moment. You don't have to figure everything out at once. Is there someone you trust whom you could talk to today?";
+ else if(lower.includes('exam')||lower.includes('study')) reply="Study pressure can pile up quickly. Try breaking the next task into a small 15–25 minute step, then take a short break.";
+ else reply="Thanks for sharing that. Taking a moment to put your thoughts into words can be useful. What part of this is affecting you the most?";
+ addMsg(reply,'ai')},500)
+}
+</script>
+</body>
+</html>
