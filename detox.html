@@ -65,190 +65,527 @@ footer{padding:35px 7%;text-align:center;color:var(--muted);font-size:13px}
 </section>
 </main>
 <footer>Detox 🌿 · Built for mental wellness · Privacy-first demo</footer>
-
-
 <script>
-function setMood(m) {
-  document.getElementById('moodResult').textContent =
-    "Today's check-in: " + m + ". Thanks for checking in with yourself.";
+/* ================================
+   DETOX — HUMAN-LIKE LOCAL CHAT
+   No API • No backend • No key
+================================ */
+
+const conversation = [];
+
+/* ---------- MOOD ---------- */
+
+function setMood(mood) {
+  const result = document.getElementById("moodResult");
+
+  result.textContent =
+    "Today's check-in: " + mood + ". Thanks for being honest with yourself.";
+
+  /* Remember the mood during this session */
+  conversation.push({
+    role: "user",
+    text: "My mood today is " + mood
+  });
 }
 
-function addMsg(text, cls) {
-  const d = document.createElement('div');
-  d.className = 'msg ' + cls;
-  d.textContent = text;
 
-  const box = document.getElementById('messages');
-  box.appendChild(d);
+/* ---------- MESSAGE UI ---------- */
+
+function addMsg(text, cls) {
+  const message = document.createElement("div");
+
+  message.className = "msg " + cls;
+  message.textContent = text;
+
+  const box = document.getElementById("messages");
+
+  box.appendChild(message);
   box.scrollTop = box.scrollHeight;
 }
 
-/* Local response engine */
-function getWellnessReply(text) {
-  const lower = text.toLowerCase().trim();
 
-  const groups = [
+/* ---------- SMALL UTILITIES ---------- */
 
-    {
-      words: [
-        'stress', 'stressed', 'overwhelmed', 'overwhelm',
-        'pressure', 'anxious', 'anxiety', 'panic', 'nervous'
-      ],
-      replies: [
-        "That sounds like a lot to handle at once. Try focusing only on the next small thing you can control. What feels most difficult right now?",
-        "When everything feels urgent, pause and separate what needs attention now from what can wait. What is one thing you want to handle first?",
-        "You don't have to solve everything at once. Take a slow breath and choose one small next step."
-      ]
-    },
-
-    {
-      words: [
-        'sad', 'sadness', 'lonely', 'loneliness',
-        'cry', 'upset', 'down', 'hurt'
-      ],
-      replies: [
-        "I'm glad you put that feeling into words. You don't have to handle a difficult moment completely on your own. Is there someone you trust you could talk to?",
-        "That sounds difficult. Be gentle with yourself for the moment and focus on one small thing that could make the next few minutes easier.",
-        "Sometimes putting a difficult feeling into words can make it feel less tangled. What is weighing on you most?"
-      ]
-    },
-
-    {
-      words: [
-        'exam', 'exams', 'study', 'studying',
-        'homework', 'school', 'marks', 'grade', 'syllabus'
-      ],
-      replies: [
-        "Study pressure can pile up quickly. Pick one clearly defined task and work on it for a short focused block, then take a brief break.",
-        "Try turning the big study goal into the smallest next action—for example, one concept, one question, or one page.",
-        "A difficult study day doesn't define your ability. Focus on what you can complete next rather than the whole syllabus."
-      ]
-    },
-
-    {
-      words: [
-        'angry', 'anger', 'mad', 'frustrated',
-        'frustration', 'annoyed', 'irritated'
-      ],
-      replies: [
-        "It sounds like something has really gotten under your skin. Before reacting, give yourself some space and identify what specifically triggered the feeling.",
-        "Strong frustration can make everything feel bigger. A short pause or change of setting may help you think more clearly.",
-        "Take a moment before responding to the situation. What exactly happened that made you feel this way?"
-      ]
-    },
-
-    {
-      words: [
-        'sleep', 'sleeping', 'insomnia',
-        'tired', 'exhausted', 'fatigue'
-      ],
-      replies: [
-        "Being tired can make ordinary problems feel harder. If you can, give yourself some quiet time and a chance to rest.",
-        "A calmer evening routine can sometimes help: reduce stimulation, put the phone aside for a while, and let your mind slow down.",
-        "Rest matters too. If you're exhausted, consider making your next goal simply getting some recovery time."
-      ]
-    },
-
-    {
-      words: [
-        'friend', 'friends', 'family', 'parents',
-        'relationship', 'argument', 'fight', 'conflict'
-      ],
-      replies: [
-        "Relationships can affect our mood a lot. Try separating what actually happened from what you are assuming it means. What happened from your point of view?",
-        "It may help to pause before sending a message or making a decision while emotions are high. What part of the situation bothers you most?",
-        "Sometimes the best first step is understanding exactly what went wrong. What happened?"
-      ]
-    },
-
-    {
-      words: [
-        'happy', 'good', 'great', 'excited',
-        'proud', 'better', 'amazing', 'awesome'
-      ],
-      replies: [
-        "That's good to hear. Take a moment to notice what made today feel better—you may be able to repeat some of it.",
-        "Nice. Small positive moments are worth noticing too. What has been going well?",
-        "That's great. What do you think contributed to feeling this way?"
-      ]
-    },
-
-    {
-      words: [
-        'future', 'career', 'goal', 'goals',
-        'purpose', 'motivation', 'motivated'
-      ],
-      replies: [
-        "Having a meaningful goal can give difficult days some direction. Try focusing on the next step rather than the entire journey.",
-        "Big goals become easier to handle when you turn them into smaller actions. What's one thing you can do today?",
-        "Motivation isn't always constant. Building a routine can help you keep moving even on low-motivation days."
-      ]
-    },
-
-    {
-      words: [
-        'bored', 'boring', 'nothing', 'free time'
-      ],
-      replies: [
-        "A little boredom can actually be useful. You could take a walk, write something down, read, or spend a few minutes away from your screen.",
-        "Maybe use the next few minutes for something small that feels meaningful. What kind of activity usually makes you feel refreshed?"
-      ]
-    }
-
-  ];
-
-  /* Find the first matching emotional/topic category */
-  for (const group of groups) {
-    for (const word of group.words) {
-      if (lower.includes(word)) {
-        return group.replies[
-          Math.floor(Math.random() * group.replies.length)
-        ];
-      }
-    }
-  }
-
-  /* General response */
-  const generalReplies = [
-    "Thanks for sharing that. Putting thoughts into words can be useful. What part of the situation is affecting you the most?",
-    "I hear you. Let's break it down into something easier to understand. What is bothering you most right now?",
-    "That sounds worth exploring. What happened just before you started feeling this way?",
-    "Take your time. You can describe what's on your mind in your own words.",
-    "Let's take this one step at a time. What would you like to understand or change about the situation?"
-  ];
-
-  return generalReplies[
-    Math.floor(Math.random() * generalReplies.length)
-  ];
+function hasAny(text, words) {
+  return words.some(word => text.includes(word));
 }
 
+function randomItem(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+
+/* ---------- RESPONSE ENGINE ---------- */
+
+function getWellnessReply(message) {
+
+  const text = message
+    .toLowerCase()
+    .trim()
+    .replace(/[!?.,]/g, "");
+
+  /* --------------------------------
+     GREETINGS
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "hi",
+    "hello",
+    "hey",
+    "hii",
+    "helo",
+    "good morning",
+    "good evening"
+  ])) {
+
+    return randomItem([
+      "Hey :) What's on your mind?",
+      "Hey, I'm here. How are you doing?",
+      "Hi :) What's going on?",
+      "Hey. You can talk freely here. What's up?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     THANK YOU
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "thank you",
+    "thanks",
+    "thx",
+    "thank u"
+  ])) {
+
+    return randomItem([
+      "You're welcome :)",
+      "Anytime.",
+      "Of course. I'm glad you shared it.",
+      "You don't have to thank me. Keep talking if you want to."
+    ]);
+  }
+
+
+  /* --------------------------------
+     STRESS / PRESSURE
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "stress",
+    "stressed",
+    "pressure",
+    "overwhelmed",
+    "overwhelm",
+    "too much",
+    "can't handle",
+    "cannot handle"
+  ])) {
+
+    return randomItem([
+      "Yeah, that sounds like a lot at once. You don't have to figure everything out right now. What's putting the most pressure on you?",
+      
+      "I get why that would feel overwhelming. Sometimes the problem isn't one huge thing, but ten small things happening together. Which one is bothering you the most?",
+      
+      "Take it one thing at a time. Forget the whole mountain for a moment—what's the very next thing you need to deal with?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     SAD / LOW
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "sad",
+    "unhappy",
+    "feeling low",
+    "feel low",
+    "down",
+    "upset",
+    "crying",
+    "cry",
+    "heartbroken"
+  ])) {
+
+    return randomItem([
+      "I'm sorry you're having a rough moment. You don't have to pretend everything is fine here. What happened?",
+      
+      "That sounds heavy. Sometimes talking about exactly what happened helps make things a little clearer. What started this feeling?",
+      
+      "Yeah... some days just feel heavier than others. I'm listening. Tell me what's been going on."
+    ]);
+  }
+
+
+  /* --------------------------------
+     LONELINESS
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "lonely",
+    "alone",
+    "no one",
+    "nobody",
+    "no friends",
+    "feel alone"
+  ])) {
+
+    return randomItem([
+      "Feeling alone can be surprisingly exhausting. Is it that you don't have people around you, or that you don't feel understood by them?",
+      
+      "I hear you. Being surrounded by people and still feeling alone can happen too. What's been making you feel this way?",
+      
+      "You can talk about it here. What's been happening lately?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     ANGER
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "angry",
+    "anger",
+    "mad",
+    "furious",
+    "annoyed",
+    "irritated",
+    "frustrated",
+    "frustrating"
+  ])) {
+
+    return randomItem([
+      "Sounds like something really got on your nerves. What happened?",
+      
+      "Yeah, I can hear the frustration in that. Before we think about what to do, what exactly happened?",
+      
+      "It's okay to be angry. The useful part is figuring out what caused it. What triggered you?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     SCHOOL / EXAMS
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "exam",
+    "exams",
+    "study",
+    "studying",
+    "school",
+    "homework",
+    "marks",
+    "grade",
+    "test",
+    "syllabus"
+  ])) {
+
+    return randomItem([
+      "Exams can make everything feel urgent. Don't think about the entire syllabus right now. Pick one topic and start there. What's your biggest problem—starting, concentrating, or remembering things?",
+      
+      "Study pressure is real. And honestly, staring at a huge syllabus usually makes it worse. What's the subject giving you the most trouble?",
+      
+      "Let's make it smaller. One chapter, one concept, one question at a time. What are you studying right now?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     MOTIVATION
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "motivation",
+    "motivated",
+    "lazy",
+    "procrastinating",
+    "procrastination",
+    "don't feel like",
+    "cant start",
+    "can't start"
+  ])) {
+
+    return randomItem([
+      "You probably don't need to feel motivated before starting. Sometimes starting is what creates the motivation. What's one tiny thing you could do right now?",
+      
+      "Don't beat yourself up for having low motivation. Make the task ridiculously small and just begin for a few minutes.",
+      
+      "Maybe don't aim to finish everything. Aim to start. What have you been putting off?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     SLEEP
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "sleep",
+    "sleeping",
+    "can't sleep",
+    "cant sleep",
+    "insomnia",
+    "tired",
+    "exhausted"
+  ])) {
+
+    return randomItem([
+      "Being tired can make everything feel worse. How has your sleep been lately?",
+      
+      "You sound pretty drained. If you can, give yourself some proper rest instead of trying to push through everything.",
+      
+      "Sleep affects mood and concentration more than we sometimes realise. What's keeping you awake?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     FRIENDS / FAMILY
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "friend",
+    "friends",
+    "family",
+    "parents",
+    "mother",
+    "father",
+    "brother",
+    "sister"
+  ])) {
+
+    return randomItem([
+      "People close to us can affect our mood a lot. What happened between you and them?",
+      
+      "Sounds like there's something going on with someone close to you. Do you want to tell me what happened?",
+      
+      "Relationships can get complicated quickly. What part of the situation is bothering you the most?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     CONFIDENCE
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "confidence",
+    "insecure",
+    "insecurity",
+    "not good enough",
+    "worthless",
+    "failure",
+    "fail",
+    "loser"
+  ])) {
+
+    return randomItem([
+      "A bad result doesn't automatically say something bad about you. What happened that made you feel this way?",
+      
+      "It sounds like you're being pretty hard on yourself. Let's separate what actually happened from what you're telling yourself it means.",
+      
+      "You don't have to have everything figured out. What specifically made you doubt yourself?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     FUTURE / LIFE
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "future",
+    "career",
+    "life",
+    "purpose",
+    "goal",
+    "goals",
+    "direction",
+    "confused"
+  ])) {
+
+    return randomItem([
+      "It's normal not to have every part of your future figured out. What are you most confused about right now?",
+      
+      "Big questions can feel overwhelming when you try to solve them all at once. What's the one decision you're thinking about?",
+      
+      "You don't need the entire map right now. Sometimes you just need the next direction. What's your biggest concern about the future?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     POSITIVE MOOD
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "happy",
+    "happier",
+    "good",
+    "great",
+    "amazing",
+    "awesome",
+    "excited",
+    "proud",
+    "better"
+  ])) {
+
+    return randomItem([
+      "That's actually nice to hear :) What happened?",
+      
+      "Good to hear. What's been going well?",
+      
+      "That's a win. Don't rush past it—what made today better?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     HELP
+  -------------------------------- */
+
+  if (hasAny(text, [
+    "help me",
+    "what should i do",
+    "what do i do",
+    "advice",
+    "advise me"
+  ])) {
+
+    return randomItem([
+      "Sure. Tell me what's happening first, and we'll break it down.",
+      
+      "Yeah, let's figure it out together. What's going on?",
+      
+      "Okay. Give me the situation as honestly as you can, and we'll take it one step at a time."
+    ]);
+  }
+
+
+  /* --------------------------------
+     VERY SHORT / UNCLEAR MESSAGES
+  -------------------------------- */
+
+  if (text.length < 5) {
+
+    return randomItem([
+      "I'm listening. Tell me a little more.",
+      "Go on :)",
+      "What happened?",
+      "Take your time. I'm listening."
+    ]);
+  }
+
+
+  /* --------------------------------
+     CONTEXT-AWARE FOLLOW-UP
+  -------------------------------- */
+
+  if (conversation.length > 0) {
+
+    return randomItem([
+      "I understand. And what happened after that?",
+      
+      "Okay, I see what you mean. How did that make you feel?",
+      
+      "Hmm. Tell me a little more about that.",
+      
+      "I get what you're saying. What do you think is bothering you the most?",
+      
+      "That makes sense. What would you ideally like to happen?"
+    ]);
+  }
+
+
+  /* --------------------------------
+     GENERAL CONVERSATION
+  -------------------------------- */
+
+  return randomItem([
+    "Hmm, tell me more about that.",
+    
+    "I hear you. What's been on your mind lately?",
+    
+    "Okay. What happened?",
+    
+    "Go on. I'm listening.",
+    
+    "That's interesting. What makes you feel that way?",
+    
+    "I understand. Which part of this is bothering you the most?",
+    
+    "Take your time. You can explain it however you want."
+  ]);
+}
+
+
+/* ---------- SEND MESSAGE ---------- */
+
 function sendMessage() {
-  const input = document.getElementById('chatInput');
+
+  const input = document.getElementById("chatInput");
+
   const text = input.value.trim();
 
   if (!text) return;
 
-  /* User message */
-  addMsg(text, 'user');
 
-  /* Clear input */
-  input.value = '';
+  /* Show user's message */
 
-  /* AI-style response */
+  addMsg(text, "user");
+
+  conversation.push({
+    role: "user",
+    text: text
+  });
+
+  input.value = "";
+
+
+  /* Small natural delay */
+
+  const delay =
+    Math.min(
+      900,
+      Math.max(350, text.length * 12)
+    );
+
+
   setTimeout(() => {
+
     const reply = getWellnessReply(text);
-    addMsg(reply, 'ai');
-  }, 450);
+
+    addMsg(reply, "ai");
+
+    conversation.push({
+      role: "ai",
+      text: reply
+    });
+
+  }, delay);
 }
 
-/* Press Enter to send */
-document.getElementById('chatInput').addEventListener('keydown', function(event) {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    sendMessage();
-  }
-});
 
-</script>
+/* ---------- ENTER TO SEND ---------- */
+
+document.getElementById("chatInput").addEventListener(
+  "keydown",
+  function(event) {
+
+    if (event.key === "Enter") {
+
+      event.preventDefault();
+
+      sendMessage();
+    }
+
+  }
+);
+    </script>
+
+
 </body>
 </html>
